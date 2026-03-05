@@ -1,0 +1,32 @@
+/* App specific styles will typically use glassmorphism utility from index.css */
+.app-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.exit-immersive-zone:hover .exit-immersive-btn {
+  opacity: 1 !important;
+}
+
+.exit-immersive-btn:hover {
+  background: rgba(0, 0, 0, 0.8) !important;
+  transform: scale(1.05);
+}

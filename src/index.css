@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body.theme-sky {
+  --bg-color: #87CEEB;
+  /* Sky blue gradient will be handled in separate component */
+  --text-primary: #1a202c;
+  --text-secondary: #4a5568;
+  --accent-color: #3182ce;
+  --accent-glow: rgba(49, 130, 206, 0.4);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.1);
+}
+
+body.theme-space {
+  --bg-color: #050510;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --accent-color: #646cff;
+  --accent-glow: rgba(100, 108, 255, 0.4);
+  --glass-bg: rgba(20, 20, 35, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+:root {
+  /* Fallbacks */
+  --bg-color: #f0f4f8;
+  --text-primary: #1a202c;
+  --text-secondary: #4a5568;
+  --accent-color: #3182ce;
+  --accent-glow: rgba(49, 130, 206, 0.4);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--text-primary);
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  overflow: hidden;
+  /* Prevent scrolling, 3D globe takes full screen */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  display: flex;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
