@@ -55,13 +55,13 @@ export default function Earth({ markers, arcs = [], onMarkerClick }) {
                     globeMaterial.bumpScale = 10;
 
                     // True 3D Displacement (elevation)
-                    new THREE.TextureLoader().load('/textures/earth-topology.png', texture => {
+                    new THREE.TextureLoader().load(`${import.meta.env.BASE_URL}textures/earth-topology.png`, texture => {
                         globeMaterial.displacementMap = texture;
                         globeMaterial.displacementScale = 3; // Adjust for mountain height intensity
                         globeMaterial.displacementBias = -0.5; // Keeps sea level normal
                     });
 
-                    new THREE.TextureLoader().load('/textures/earth-water.png', texture => {
+                    new THREE.TextureLoader().load(`${import.meta.env.BASE_URL}textures/earth-water.png`, texture => {
                         globeMaterial.specularMap = texture;
                         globeMaterial.specular = new THREE.Color('grey');
                         globeMaterial.shininess = 15;
@@ -69,7 +69,7 @@ export default function Earth({ markers, arcs = [], onMarkerClick }) {
                 }
 
                 // Add Dynamic Cloud Layer (Using earth-day.jpg as a cloud replacement with additive blending or skip it if it looks bad)
-                const CLOUDS_IMG_URL = '/textures/earth-day.jpg'; // We'll just use the day texture with an opacity hack since clouds is missing
+                const CLOUDS_IMG_URL = `${import.meta.env.BASE_URL}textures/earth-day.jpg`; // We'll just use the day texture with an opacity hack since clouds is missing
                 new THREE.TextureLoader().load(CLOUDS_IMG_URL, cloudsTexture => {
                     if (!globeRef.current) return;
 
@@ -154,8 +154,8 @@ export default function Earth({ markers, arcs = [], onMarkerClick }) {
                 width={dimensions.width}
                 height={dimensions.height}
                 // Switch to 8k/4k earth textures based on theme
-                globeImageUrl={theme === 'space' ? "/textures/earth-night.jpg" : "/textures/earth-blue-marble.jpg"}
-                bumpImageUrl="/textures/earth-topology.png"
+                globeImageUrl={theme === 'space' ? `${import.meta.env.BASE_URL}textures/earth-night.jpg` : `${import.meta.env.BASE_URL}textures/earth-blue-marble.jpg`}
+                bumpImageUrl={`${import.meta.env.BASE_URL}textures/earth-topology.png`}
                 backgroundImageUrl=""
                 backgroundColor="rgba(0,0,0,0)"
 
