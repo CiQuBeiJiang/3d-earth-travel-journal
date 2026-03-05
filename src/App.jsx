@@ -17,6 +17,11 @@ function MainApp() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isImmersive, setIsImmersive] = useState(false);
 
+  // Admin Mode (Read-Only Public View Control)
+  const [isAdmin, setIsAdmin] = useState(() => {
+    return localStorage.getItem('app-admin') === 'true';
+  });
+
   // Journey playback state
   const [routeArcs, setRouteArcs] = useState([]);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -24,6 +29,10 @@ function MainApp() {
 
   const { theme } = useTheme();
   const { t } = useLanguage();
+
+  useEffect(() => {
+    localStorage.setItem('app-admin', isAdmin);
+  }, [isAdmin]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -182,24 +191,27 @@ function MainApp() {
               <span>{t('app.settings')}</span>
             </button>
 
-            <button
-              onClick={() => setIsFormOpen(true)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '8px 16px',
-                background: 'var(--accent-color)',
-                border: 'none',
-                borderRadius: '20px',
-                color: 'white',
-                boxShadow: '0 4px 12px rgba(100, 108, 255, 0.3)',
-                cursor: 'pointer'
-              }}
-            >
-              <Plus size={16} />
-              <span>{t('app.addMemory')}</span>
-            </button>
+            {/* Conditionally Show Add Memory Button */}
+            {isAdmin && (
+              <button
+                onClick={() => setIsFormOpen(true)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 16px',
+                  background: 'var(--accent-color)',
+                  border: 'none',
+                  borderRadius: '20px',
+                  color: 'white',
+                  boxShadow: '0 4px 12px rgba(100, 108, 255, 0.3)',
+                  cursor: 'pointer'
+                }}
+              >
+                <Plus size={16} />
+                <span>{t('app.addMemory')}</span>
+              </button>
+            )}
 
             <button
               onClick={isPlaying ? () => setIsPlaying(false) : playJourney}
@@ -229,14 +241,22 @@ function MainApp() {
       <LocationDetails
         location={!isImmersive ? selectedLocation : null}
         onClose={handleClosePanel}
-        onDelete={handleDeleteLocation}
+        onDelete={isAdmin ? handleDeleteLocation : null}
       />
 
       {/* Add Location Form Overlay */}
-      {isFormOpen && <LocationForm onClose={() => setIsFormOpen(false)} onAddLocation={handleAddLocation} />}
+      {isFormOpen && isAdmin && <LocationForm onClose={() => setIsFormOpen(false)} onAddLocation={handleAddLocation} />}
 
       {/* Settings Panel */}
-      {isSettingsOpen && <SettingsPanel onClose={() => setIsSettingsOpen(false)} isImmersive={isImmersive} setIsImmersive={setIsImmersive} />}
+      {isSettingsOpen && (
+        <SettingsPanel
+          onClose={() => setIsSettingsOpen(false)}
+          isImmersive={isImmersive}
+          setIsImmersive={setIsImmersive}
+          isAdmin={isAdmin}
+          setIsAdmin={setIsAdmin}
+        />
+      )}
     </div>
   );
 }

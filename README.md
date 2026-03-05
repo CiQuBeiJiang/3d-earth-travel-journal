@@ -18,6 +18,16 @@ A stunning, interactive 3D WebGL globe application built with React and Three.js
 - **Bilingual Support (i18n)**: Instantly switch between English and 中文 (Chinese) via the Settings panel.
 - **Immersive Mode**: Hide the UI at the press of a button (`H` or `ESC`) to focus entirely on the globe. Designed with elegant frosted-glass (glassmorphism) components.
 
+## 🔒 Admin Mode (Public Read-Only)
+
+By default, if you deploy this project to a static host like GitHub Pages, the application boots in **Read-Only Visitor Mode**. This prevents random visitors from being confused by the "Add/Delete" buttons (since static hosts cannot permanently save user input without a backend).
+
+**To unlock editing features (Add/Delete Memories):**
+1. Open the **Settings** panel (Gear icon).
+2. Click the subtle **"Admin Unlock (管理员解锁)"** button at the very bottom.
+3. Enter the default passcode: `admin123`.
+4. The editing UI buttons will instantly appear, and your admin status will be saved to your local browser storage.
+
 ![Time-Lapse Journey](./screenshots/journey_playback.png)
 ![Add Memory Form](./screenshots/add_memory.png)
 

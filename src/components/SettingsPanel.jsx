@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { X } from 'lucide-react';
+import { X, Lock, Unlock } from 'lucide-react';
 
-export default function SettingsPanel({ onClose, isImmersive, setIsImmersive }) {
+export default function SettingsPanel({ onClose, isImmersive, setIsImmersive, isAdmin, setIsAdmin }) {
     const { language, setLanguage, t } = useLanguage();
     const { theme, toggleTheme } = useTheme();
 
@@ -16,6 +16,23 @@ export default function SettingsPanel({ onClose, isImmersive, setIsImmersive }) 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [onClose]);
+
+    const handleAdminUnlock = () => {
+        if (isAdmin) {
+            setIsAdmin(false); // allow locking again
+            return;
+        }
+        const password = window.prompt(t('settings.adminPasswordPrompt'));
+
+        // Use Vite environment variable, fallback to default if not set
+        const correctPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123';
+
+        if (password === correctPassword) {
+            setIsAdmin(true);
+        } else if (password !== null) {
+            alert(t('settings.adminPasswordError'));
+        }
+    };
 
     return (
         <div style={{
@@ -175,6 +192,28 @@ export default function SettingsPanel({ onClose, isImmersive, setIsImmersive }) 
                             }} />
                         </button>
                     </div>
+                </div>
+
+                {/* Secret Admin Mode Unlock */}
+                <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center' }}>
+                    <button
+                        onClick={handleAdminUnlock}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            background: 'transparent',
+                            border: 'none',
+                            color: isAdmin ? '#4caf50' : 'rgba(255,255,255,0.2)',
+                            fontSize: '0.8rem',
+                            cursor: 'pointer',
+                            transition: 'color 0.2s',
+                            padding: '4px 8px'
+                        }}
+                    >
+                        {isAdmin ? <Unlock size={14} /> : <Lock size={14} />}
+                        <span>{isAdmin ? t('settings.adminUnlocked') : t('settings.adminUnlock')}</span>
+                    </button>
                 </div>
 
             </div>
