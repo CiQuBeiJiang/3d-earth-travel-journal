@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { X, MapPin, Calendar, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import { useLanguage } from '../contexts/LanguageContext';
 import './LocationDetails.css';
 
 export default function LocationDetails({ location, onClose, onDelete }) {
+    const { t } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
 
     // We use this local state to trigger the slide in/out animation
@@ -38,14 +40,14 @@ export default function LocationDetails({ location, onClose, onDelete }) {
                                     <button
                                         className="tag delete-btn"
                                         onClick={() => {
-                                            if (window.confirm(`确定要删除 ${location.name} 的旅行记录吗？`)) {
+                                            if (window.confirm(t('locationDetails.deleteConfirm', { city: location.name }))) {
                                                 onDelete(location.id);
                                             }
                                         }}
                                         style={{ background: 'rgba(255, 74, 74, 0.1)', color: '#ff4a4a', cursor: 'pointer', border: 'none' }}
-                                        title="Delete Memory"
+                                        title={t('locationDetails.deleteConfirm', { city: '' })}
                                     >
-                                        <Trash2 size={14} /> 删除
+                                        <Trash2 size={14} />
                                     </button>
                                 )}
                             </div>

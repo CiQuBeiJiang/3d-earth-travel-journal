@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 import './LocationForm.css';
 
 export default function LocationForm({ onClose, onAddLocation }) {
+    const { t } = useLanguage();
     const [formData, setFormData] = useState({
         city: '',
         date: '',
@@ -60,38 +62,37 @@ export default function LocationForm({ onClose, onAddLocation }) {
                     <X size={20} />
                 </button>
 
-                <h2>Add Travel Memory</h2>
+                <h2>{t('locationForm.title')}</h2>
                 {error && <div className="error-message">{error}</div>}
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label>City / Location Name</label>
-                        <input required type="text" name="city" value={formData.city} onChange={handleChange} placeholder="e.g. Kyoto, Japan" />
+                        <label>{t('locationForm.cityName')}</label>
+                        <input required type="text" name="city" value={formData.city} onChange={handleChange} placeholder={t('locationForm.cityNamePlaceholder')} />
                     </div>
 
                     <div className="form-group">
-                        <label>Date</label>
-                        <input required type="text" name="date" value={formData.date} onChange={handleChange} placeholder="e.g. Spring 2024" />
+                        <label>{t('locationForm.date')}</label>
+                        <input required type="text" name="date" value={formData.date} onChange={handleChange} placeholder={t('locationForm.datePlaceholder')} />
                     </div>
 
                     <div className="form-group">
-                        <label>Title</label>
-                        <input required type="text" name="title" value={formData.title} onChange={handleChange} placeholder="Catchy title for this memory" />
+                        <label>{t('locationForm.title')}</label>
+                        <input required type="text" name="title" value={formData.title} onChange={handleChange} placeholder={t('locationForm.traveloguePlaceholder')} />
                     </div>
 
                     <div className="form-group">
-                        <label>Travelogue (Supports Markdown)</label>
-                        <textarea required name="description" value={formData.description} onChange={handleChange} rows="5" placeholder="Write your story here... **Bold**, *Italics*, - Lists" />
-                        <small>You can use Markdown syntax to format your text.</small>
+                        <label>{t('locationForm.description')}</label>
+                        <textarea required name="description" value={formData.description} onChange={handleChange} rows="5" placeholder={t('locationForm.descriptionPlaceholder')} />
                     </div>
 
                     <div className="form-group">
-                        <label>Photo URLs (Comma separated)</label>
-                        <input type="text" name="photos" value={formData.photos} onChange={handleChange} placeholder="https://image1.jpg, https://image2.jpg" />
+                        <label>{t('locationForm.photos')}</label>
+                        <input type="text" name="photos" value={formData.photos} onChange={handleChange} placeholder={t('locationForm.photoUrlPlaceholder')} />
                     </div>
 
                     <button type="submit" className="submit-btn" disabled={isSubmitting}>
-                        {isSubmitting ? <><Loader2 className="spinner" size={16} /> Locating...</> : 'Save Memory'}
+                        {isSubmitting ? <><Loader2 className="spinner" size={16} /></> : t('locationForm.save')}
                     </button>
                 </form>
             </div>

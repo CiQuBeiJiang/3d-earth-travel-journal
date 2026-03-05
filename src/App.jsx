@@ -4,7 +4,9 @@ import BackgroundElements from './components/BackgroundElements';
 import LocationDetails from './components/LocationDetails';
 import LocationForm from './components/LocationForm';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
-import { Moon, Sun, Plus, Play, Square, Eye, EyeOff } from 'lucide-react';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
+import { Plus, Play, Square, EyeOff, Settings } from 'lucide-react';
+import SettingsPanel from './components/SettingsPanel';
 import { travelData } from './data/travelData';
 import './App.css';
 
@@ -12,6 +14,7 @@ function MainApp() {
   const [locations, setLocations] = useState(travelData);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isImmersive, setIsImmersive] = useState(false);
 
   // Journey playback state
@@ -19,7 +22,8 @@ function MainApp() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackAborter, setPlaybackAborter] = useState(false);
 
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -130,7 +134,7 @@ function MainApp() {
             }}
           >
             <EyeOff size={16} />
-            <span>Exit Immersive</span>
+            <span>{t('app.exitImmersive')}</span>
           </button>
         </div>
       )}
@@ -149,17 +153,17 @@ function MainApp() {
         }}>
           <div>
             <h1 style={{ fontWeight: 600, fontSize: '1.8rem', letterSpacing: '0.05em', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
-              My Travel <span style={{ color: 'var(--accent-color)' }}>Log</span>
+              {t('app.title')}<span style={{ color: 'var(--accent-color)' }}>{t('app.titleHighlight')}</span>
             </h1>
             <p style={{ color: 'var(--text-secondary)', marginTop: '4px', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
-              Explore the globe to see my memories. <span style={{ opacity: 0.6, fontSize: '0.8rem' }}>(Press H to hide UI)</span>
+              {t('app.subtitle')} <span style={{ opacity: 0.6, fontSize: '0.8rem' }}>{t('app.shortcutHint')}</span>
             </p>
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', pointerEvents: 'auto' }}>
-            {/* Theme Toggle Button */}
+            {/* Settings Menu Button */}
             <button
-              onClick={toggleTheme}
+              onClick={() => setIsSettingsOpen(true)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -174,30 +178,8 @@ function MainApp() {
                 cursor: 'pointer'
               }}
             >
-              {theme === 'sky' ? <Moon size={16} /> : <Sun size={16} />}
-              <span>{theme === 'sky' ? 'Space' : 'Sky'}</span>
-            </button>
-
-            {/* Immersive Mode Button */}
-            <button
-              onClick={() => setIsImmersive(true)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '8px 16px',
-                background: 'var(--glass-bg)',
-                border: '1px solid var(--glass-border)',
-                borderRadius: '20px',
-                color: 'var(--text-primary)',
-                backdropFilter: 'blur(10px)',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                cursor: 'pointer'
-              }}
-              title="Hide UI (Shortcut: H or ESC)"
-            >
-              <Eye size={16} />
-              <span>Immersive</span>
+              <Settings size={16} />
+              <span>{t('app.settings')}</span>
             </button>
 
             <button
@@ -216,7 +198,7 @@ function MainApp() {
               }}
             >
               <Plus size={16} />
-              <span>Add Memory</span>
+              <span>{t('app.addMemory')}</span>
             </button>
 
             <button
@@ -237,7 +219,7 @@ function MainApp() {
               }}
             >
               {isPlaying ? <Square size={16} /> : <Play size={16} fill="currentColor" />}
-              <span>{isPlaying ? 'Stop' : 'Play Journey'}</span>
+              <span>{isPlaying ? t('app.stop') : t('app.playJourney')}</span>
             </button>
           </div>
         </div>
@@ -252,15 +234,20 @@ function MainApp() {
 
       {/* Add Location Form Overlay */}
       {isFormOpen && <LocationForm onClose={() => setIsFormOpen(false)} onAddLocation={handleAddLocation} />}
+
+      {/* Settings Panel */}
+      {isSettingsOpen && <SettingsPanel onClose={() => setIsSettingsOpen(false)} isImmersive={isImmersive} setIsImmersive={setIsImmersive} />}
     </div>
   );
 }
 
 function App() {
   return (
-    <ThemeProvider>
-      <MainApp />
-    </ThemeProvider>
+    <LanguageProvider>
+      <ThemeProvider>
+        <MainApp />
+      </ThemeProvider>
+    </LanguageProvider>
   );
 }
 

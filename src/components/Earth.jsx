@@ -5,6 +5,8 @@ import { useTheme } from '../contexts/ThemeContext';
 
 export default function Earth({ markers, arcs = [], onMarkerClick }) {
     const globeRef = useRef();
+    const cloudsRef = useRef(null);
+    const ambientLightRef = useRef(null);
     const { theme } = useTheme();
     const [dimensions, setDimensions] = useState({
         width: window.innerWidth,
@@ -82,6 +84,17 @@ export default function Earth({ markers, arcs = [], onMarkerClick }) {
                     const scene = globeRef.current.scene ? globeRef.current.scene() : null;
                     if (scene) {
                         scene.add(clouds);
+                        cloudsRef.current = clouds;
+
+                        // Create a custom ambient light to control brightness
+                        if (!ambientLightRef.current) {
+                            const light = new THREE.AmbientLight(0xffffff, 1.2);
+                            scene.add(light);
+                            ambientLightRef.current = light;
+                        }
+
+                        // Apply current theme settings immediately
+                        applyThemeSettings(theme);
 
                         // Simple animation loop for clouds
                         const rotateClouds = () => {
@@ -103,6 +116,24 @@ export default function Earth({ markers, arcs = [], onMarkerClick }) {
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
         };
     }, []);
+
+    // Helper to apply lighting and cloud opacity based on theme
+    const applyThemeSettings = (currentTheme) => {
+        if (cloudsRef.current) {
+            // Hide clouds in space mode so they don't wash out the night lights
+            cloudsRef.current.material.opacity = currentTheme === 'space' ? 0 : 0.15;
+        }
+        if (ambientLightRef.current) {
+            // Significantly boost ambient light in space mode so the dark side and city lights are highly visible
+            // In sky mode, keep it lower so the directional sunlight creates realistic day/night cycles
+            ambientLightRef.current.intensity = currentTheme === 'space' ? 4.5 : 0.8;
+        }
+    };
+
+    // Update settings when theme changes
+    useEffect(() => {
+        applyThemeSettings(theme);
+    }, [theme]);
 
     // Use rings data for markers to have a cool pulse effect
     const ringData = useMemo(() => {
@@ -129,8 +160,8 @@ export default function Earth({ markers, arcs = [], onMarkerClick }) {
                 backgroundColor="rgba(0,0,0,0)"
 
                 // Atmosphere layer (Thicker/brighter logic based on theme)
-                atmosphereColor={theme === 'space' ? "rgba(100, 108, 255, 0.4)" : "rgba(135, 206, 235, 0.8)"}
-                atmosphereAltitude={theme === 'space' ? 0.15 : 0.25}
+                atmosphereColor={theme === 'space' ? "rgba(164, 188, 255, 0.7)" : "rgba(135, 206, 235, 0.8)"}
+                atmosphereAltitude={theme === 'space' ? 0.25 : 0.25}
 
                 // Custom HTML elements as glowing pins
                 htmlElementsData={markers}
