@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { X } from 'lucide-react';
+import { X, Globe, Download, Upload } from 'lucide-react';
 
 export default function SettingsPanel({ onClose, isImmersive, setIsImmersive }) {
     const { language, setLanguage, t } = useLanguage();
-    const { theme, toggleTheme } = useTheme();
+    const { theme, toggleTheme, fontSize, setFontSize } = useTheme();
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -72,7 +72,7 @@ export default function SettingsPanel({ onClose, isImmersive, setIsImmersive }) 
                                 flex: 1,
                                 padding: '10px',
                                 background: language === 'en' ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)',
-                                color: 'white',
+                                color: language === 'en' ? 'white' : 'var(--text-primary)',
                                 border: '1px solid',
                                 borderColor: language === 'en' ? 'var(--accent-color)' : 'var(--glass-border)',
                                 borderRadius: '8px',
@@ -88,7 +88,7 @@ export default function SettingsPanel({ onClose, isImmersive, setIsImmersive }) 
                                 flex: 1,
                                 padding: '10px',
                                 background: language === 'zh' ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)',
-                                color: 'white',
+                                color: language === 'zh' ? 'white' : 'var(--text-primary)',
                                 border: '1px solid',
                                 borderColor: language === 'zh' ? 'var(--accent-color)' : 'var(--glass-border)',
                                 borderRadius: '8px',
@@ -113,7 +113,7 @@ export default function SettingsPanel({ onClose, isImmersive, setIsImmersive }) 
                                 flex: 1,
                                 padding: '10px',
                                 background: theme === 'sky' ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)',
-                                color: 'white',
+                                color: theme === 'sky' ? 'white' : 'var(--text-primary)',
                                 border: '1px solid',
                                 borderColor: theme === 'sky' ? 'var(--accent-color)' : 'var(--glass-border)',
                                 borderRadius: '8px',
@@ -129,7 +129,7 @@ export default function SettingsPanel({ onClose, isImmersive, setIsImmersive }) 
                                 flex: 1,
                                 padding: '10px',
                                 background: theme === 'space' ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)',
-                                color: 'white',
+                                color: theme === 'space' ? 'white' : 'var(--text-primary)',
                                 border: '1px solid',
                                 borderColor: theme === 'space' ? 'var(--accent-color)' : 'var(--glass-border)',
                                 borderRadius: '8px',
@@ -142,10 +142,39 @@ export default function SettingsPanel({ onClose, isImmersive, setIsImmersive }) 
                     </div>
                 </div>
 
+                {/* Font Size Settings */}
+                <div style={{ marginBottom: '24px' }}>
+                    <label style={{ display: 'block', marginBottom: '12px', color: 'var(--text-secondary)' }}>
+                        {t('settings.fontSize.title')}
+                    </label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        {['small', 'medium', 'large'].map(size => (
+                            <button
+                                key={size}
+                                onClick={() => setFontSize(size)}
+                                style={{
+                                    flex: 1,
+                                    padding: '10px',
+                                    background: fontSize === size ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)',
+                                    color: fontSize === size ? 'white' : 'var(--text-primary)',
+                                    border: '1px solid',
+                                    borderColor: fontSize === size ? 'var(--accent-color)' : 'var(--glass-border)',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                    fontSize: size === 'small' ? '0.8rem' : size === 'medium' ? '1rem' : '1.2rem'
+                                }}
+                            >
+                                {t(`settings.fontSize.${size}`)}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
                 {/* Immersive Mode Toggle */}
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
-                        <span style={{ color: 'var(--text-primary)' }}>{t('settings.immersiveMode')}</span>
+                        <span style={{ color: 'var(--text-primary)' }}>{t('settings.immersive')}</span>
                         <button
                             onClick={() => {
                                 setIsImmersive(!isImmersive);
@@ -173,6 +202,68 @@ export default function SettingsPanel({ onClose, isImmersive, setIsImmersive }) 
                                 transition: 'left 0.3s',
                                 boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                             }} />
+                        </button>
+                    </div>
+                </div>
+
+                {/* Data Management */}
+                <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--glass-border)' }}>
+                    <label style={{ display: 'block', marginBottom: '12px', color: 'var(--text-secondary)' }}>
+                        {t('settings.dataManagement')}
+                    </label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                            onClick={async () => {
+                                if (window.electronAPI) {
+                                    const result = await window.electronAPI.exportData();
+                                    if (result.success) alert(t('app.title') === 'My Travel ' ? 'Backup Exported Successfully!' : '备份导出成功！');
+                                }
+                            }}
+                            style={{
+                                flex: 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px',
+                                padding: '10px',
+                                background: 'rgba(255,255,255,0.05)',
+                                color: 'var(--text-primary)',
+                                border: '1px solid var(--glass-border)',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            <Download size={16} />
+                            {t('settings.exportBackup')}
+                        </button>
+                        <button
+                            onClick={async () => {
+                                if (window.electronAPI) {
+                                    const result = await window.electronAPI.importData();
+                                    if (result.success) {
+                                        alert(t('app.title') === 'My Travel ' ? 'Backup Imported! App will restart.' : '备份导入成功！即将重启应用。');
+                                        window.location.reload();
+                                    }
+                                }
+                            }}
+                            style={{
+                                flex: 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px',
+                                padding: '10px',
+                                background: 'rgba(255,255,255,0.05)',
+                                color: 'var(--text-primary)',
+                                border: '1px solid var(--glass-border)',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            <Upload size={16} />
+                            {t('settings.importBackup')}
                         </button>
                     </div>
                 </div>

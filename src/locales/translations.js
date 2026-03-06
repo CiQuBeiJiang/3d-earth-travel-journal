@@ -17,7 +17,38 @@ export const translations = {
             theme: 'Theme',
             themeSky: 'Sky',
             themeSpace: 'Space',
-            immersiveMode: 'Immersive Mode'
+            immersive: 'Immersive Mode', // Renamed from immersiveMode
+            fontSize: {
+                title: 'Font Size',
+                small: 'Small',
+                medium: 'Medium',
+                large: 'Large'
+            },
+            rotation: { // Restructured from rotation, rotAlways, rotIdle, rotNever
+                title: 'Globe Rotation',
+                always: 'Always Spin',
+                idle: 'Spin When Idle',
+                never: 'Never Spin'
+            },
+            dataManagement: 'Data Management',
+            exportBackup: 'Export Backup',
+            importBackup: 'Import Backup'
+        },
+        tags: {
+            vacation: 'Vacation',
+            business: 'Business',
+            nature: 'Nature',
+            city: 'City',
+            food: 'Food'
+        },
+        shortcuts: {
+            title: 'Keyboard Shortcuts',
+            pauseRotation: 'Pause / Resume',
+            spacebar: 'Space',
+            closePanel: 'Close Details Panel',
+            escape: 'ESC',
+            toggleImmersive: 'Toggle Immersive Mode',
+            ctrlH: '⌘H / Ctrl+H'
         },
         locationForm: {
             title: 'Add New Memory',
@@ -30,13 +61,11 @@ export const translations = {
             traveloguePlaceholder: 'Title of your journey...',
             description: 'Experience Description (Markdown Supported)',
             descriptionPlaceholder: 'What did you see? Who did you meet? How was the food?',
-            type: 'Travel Type',
-            typeVacation: 'Vacation',
-            typeBusiness: 'Business',
-            typeNature: 'Nature',
+            tags: 'Tags',
+            selectTags: 'Select primary tag...',
             photos: 'Photos',
-            photoUrl: 'Photo URL',
-            photoUrlPlaceholder: 'https://...',
+            selectPhotos: 'Select Photos from Computer',
+            selectPhotosPlaceholder: 'Choose Files...',
             addPhoto: 'Add Photo',
             cancel: 'Cancel',
             save: 'Save Memory'
@@ -63,7 +92,38 @@ export const translations = {
             theme: '主题模式',
             themeSky: '白昼天空',
             themeSpace: '深空宇宙',
-            immersiveMode: '沉浸全屏模式'
+            immersive: '沉浸全屏模式', // Renamed from immersiveMode
+            fontSize: {
+                title: '字体大小',
+                small: '小',
+                medium: '中',
+                large: '大'
+            },
+            rotation: { // Restructured from rotation, rotAlways, rotIdle, rotNever
+                title: '地球自转',
+                always: '始终自转',
+                idle: '空闲时自转',
+                never: '从不自转'
+            },
+            dataManagement: '数据管理',
+            exportBackup: '导出备份',
+            importBackup: '导入备份'
+        },
+        tags: {
+            vacation: '度假旅行',
+            business: '商务出差',
+            nature: '自然风光',
+            city: '城市探索',
+            food: '美食打卡'
+        },
+        shortcuts: {
+            title: '快捷键说明',
+            pauseRotation: '暂停 / 恢复自转',
+            spacebar: '空格 (Space)',
+            closePanel: '关闭详情面板',
+            escape: 'ESC',
+            toggleImmersive: '沉浸全屏模式',
+            ctrlH: '⌘H / Ctrl+H'
         },
         locationForm: {
             title: '新增旅行记忆',
@@ -76,13 +136,11 @@ export const translations = {
             traveloguePlaceholder: '这段旅程的主标题...',
             description: '经历描述（支持 Markdown 语法）',
             descriptionPlaceholder: '你看到了什么？遇见了谁？食物味道如何？',
-            type: '旅行类型',
-            typeVacation: '度假',
-            typeBusiness: '商务',
-            typeNature: '自然环境',
+            tags: '标签分类',
+            selectTags: '选择关联标签...',
             photos: '照片精选',
-            photoUrl: '图片连接 URL',
-            photoUrlPlaceholder: 'https://...',
+            selectPhotos: '从电脑中选择照片',
+            selectPhotosPlaceholder: '点击选择文件...',
             addPhoto: '添加图片',
             cancel: '取消',
             save: '保存记忆'

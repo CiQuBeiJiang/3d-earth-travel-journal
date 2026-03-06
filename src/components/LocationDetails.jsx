@@ -3,10 +3,12 @@ import { X, MapPin, Calendar, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useTags } from '../contexts/TagContext';
 import './LocationDetails.css';
 
 export default function LocationDetails({ location, onClose, onDelete }) {
     const { t } = useLanguage();
+    const { tags } = useTags();
     const [isOpen, setIsOpen] = useState(false);
 
     // We use this local state to trigger the slide in/out animation
@@ -33,6 +35,33 @@ export default function LocationDetails({ location, onClose, onDelete }) {
                     <div className="content-wrapper">
                         <div className="header">
                             <h2>{location.name}</h2>
+
+                            {location.tags && location.tags.length > 0 && (
+                                <div style={{ display: 'flex', gap: '6px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                                    {location.tags.map(tagId => {
+                                        const tagObj = tags.find(x => x.id === tagId);
+                                        if (!tagObj) return null;
+                                        const tl = t(`tags.${tagObj.label.toLowerCase()}`);
+                                        const displayLabel = tl.startsWith('tags.') ? tagObj.label : tl;
+                                        return (
+                                            <span key={tagObj.id} style={{
+                                                background: `${tagObj.color}20`,
+                                                color: tagObj.color,
+                                                border: `1px solid ${tagObj.color}60`,
+                                                padding: '2px 8px',
+                                                borderRadius: '12px',
+                                                fontSize: '0.75rem',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '4px'
+                                            }}>
+                                                {tagObj.icon} {displayLabel}
+                                            </span>
+                                        );
+                                    })}
+                                </div>
+                            )}
+
                             <div className="meta-tags">
                                 <span className="tag"><MapPin size={14} /> {location.lat.toFixed(2)}, {location.lng.toFixed(2)}</span>
                                 <span className="tag"><Calendar size={14} /> {location.date}</span>
@@ -60,10 +89,10 @@ export default function LocationDetails({ location, onClose, onDelete }) {
                             </div>
 
                             {location.photos && location.photos.length > 0 && (
-                                <div className="photo-gallery">
+                                <div className="photo-gallery" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '8px', marginTop: '16px' }}>
                                     {location.photos.map((src, i) => (
-                                        <div key={i} className="photo-card">
-                                            <img src={src} alt={`${location.name} snapshot ${i + 1}`} loading="lazy" />
+                                        <div key={i} className="photo-card" style={{ aspectRatio: '1', width: '100%', overflow: 'hidden', borderRadius: '8px' }}>
+                                            <img src={src} alt={`${location.name} snapshot ${i + 1}`} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                         </div>
                                     ))}
                                 </div>

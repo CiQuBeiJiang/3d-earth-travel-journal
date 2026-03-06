@@ -2,12 +2,14 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import Globe from 'react-globe.gl';
 import * as THREE from 'three';
 import { useTheme } from '../contexts/ThemeContext';
+import { useTags } from '../contexts/TagContext';
 
-export default function Earth({ markers, arcs = [], onMarkerClick }) {
+export default function Earth({ markers, arcs = [], onMarkerClick, autoRotate = true, resetCamera = false, focusedLocationId = null }) {
     const globeRef = useRef();
     const cloudsRef = useRef(null);
     const ambientLightRef = useRef(null);
     const { theme } = useTheme();
+    const { tags } = useTags();
     const [dimensions, setDimensions] = useState({
         width: window.innerWidth,
         height: window.innerHeight
@@ -42,6 +44,41 @@ export default function Earth({ markers, arcs = [], onMarkerClick }) {
         }
     }, []);
 
+    // Update auto-rotate when prop changes
+    useEffect(() => {
+        if (globeRef.current) {
+            const controls = globeRef.current.controls();
+            if (controls) {
+                controls.autoRotate = autoRotate;
+            }
+        }
+    }, [autoRotate]);
+
+    // Reset camera to global view when requested
+    useEffect(() => {
+        if (resetCamera && globeRef.current) {
+            globeRef.current.pointOfView({ altitude: 2.2 }, 1000);
+        }
+    }, [resetCamera]);
+
+    // Helper to apply lighting and cloud opacity based on theme
+    const applyThemeSettings = React.useCallback((currentTheme) => {
+        if (cloudsRef.current) {
+            // Hide clouds in space mode so they don't wash out the night lights
+            cloudsRef.current.material.opacity = currentTheme === 'space' ? 0 : 0.4;
+        }
+        if (ambientLightRef.current) {
+            // Significantly boost ambient light in space mode so the dark side and city lights are highly visible
+            // In sky mode, keep it lower so the directional sunlight creates realistic day/night cycles
+            ambientLightRef.current.intensity = currentTheme === 'space' ? 4.5 : 0.8;
+        }
+    }, []);
+
+    // Update settings when theme changes
+    useEffect(() => {
+        applyThemeSettings(theme);
+    }, [theme, applyThemeSettings]);
+
     // Enhance Earth Material and Add Clouds after a short delay to ensure Globe is ready
     useEffect(() => {
         let animationFrameId;
@@ -68,17 +105,26 @@ export default function Earth({ markers, arcs = [], onMarkerClick }) {
                     });
                 }
 
-                // Add Dynamic Cloud Layer (Using earth-day.jpg as a cloud replacement with additive blending or skip it if it looks bad)
-                const CLOUDS_IMG_URL = `${import.meta.env.BASE_URL}textures/earth-day.jpg`; // We'll just use the day texture with an opacity hack since clouds is missing
+                // Add Dynamic Cloud Layer using a realistic cloud texture
+                const CLOUDS_IMG_URL = `${import.meta.env.BASE_URL}textures/earth-clouds.png`;
                 new THREE.TextureLoader().load(CLOUDS_IMG_URL, cloudsTexture => {
                     if (!globeRef.current) return;
 
                     // react-globe.gl base radius is typically 100
                     const radius = globeRef.current.getGlobeRadius ? globeRef.current.getGlobeRadius() : 100;
 
+                    const cloudMaterial = new THREE.MeshBasicMaterial({
+                        map: cloudsTexture,
+                        transparent: true,
+                        opacity: 0.4,
+                        blending: THREE.AdditiveBlending,
+                        depthWrite: false, // Prevents depth sorting issues with the transparent layer
+                        side: THREE.DoubleSide
+                    });
+
                     const clouds = new THREE.Mesh(
-                        new THREE.SphereGeometry(radius * 1.004, 75, 75),
-                        new THREE.MeshPhongMaterial({ map: cloudsTexture, transparent: true, opacity: 0.1, blending: THREE.AdditiveBlending })
+                        new THREE.SphereGeometry(radius * 1.02, 64, 64),
+                        cloudMaterial
                     );
 
                     const scene = globeRef.current.scene ? globeRef.current.scene() : null;
@@ -96,9 +142,9 @@ export default function Earth({ markers, arcs = [], onMarkerClick }) {
                         // Apply current theme settings immediately
                         applyThemeSettings(theme);
 
-                        // Simple animation loop for clouds
+                        // Simple animation loop for clouds (rotate slightly faster than the earth for drift effect)
                         const rotateClouds = () => {
-                            if (clouds) clouds.rotation.y += 0.0004 * Math.PI;
+                            if (clouds) clouds.rotation.y += 0.00045 * Math.PI;
                             animationFrameId = requestAnimationFrame(rotateClouds);
                         };
                         rotateClouds();
@@ -115,25 +161,7 @@ export default function Earth({ markers, arcs = [], onMarkerClick }) {
             clearTimeout(timer);
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
         };
-    }, []);
-
-    // Helper to apply lighting and cloud opacity based on theme
-    const applyThemeSettings = (currentTheme) => {
-        if (cloudsRef.current) {
-            // Hide clouds in space mode so they don't wash out the night lights
-            cloudsRef.current.material.opacity = currentTheme === 'space' ? 0 : 0.15;
-        }
-        if (ambientLightRef.current) {
-            // Significantly boost ambient light in space mode so the dark side and city lights are highly visible
-            // In sky mode, keep it lower so the directional sunlight creates realistic day/night cycles
-            ambientLightRef.current.intensity = currentTheme === 'space' ? 4.5 : 0.8;
-        }
-    };
-
-    // Update settings when theme changes
-    useEffect(() => {
-        applyThemeSettings(theme);
-    }, [theme]);
+    }, [theme, applyThemeSettings]);
 
     // Use rings data for markers to have a cool pulse effect
     const ringData = useMemo(() => {
@@ -175,16 +203,15 @@ export default function Earth({ markers, arcs = [], onMarkerClick }) {
                     let iconContent = '📍';
                     let bgColor = 'var(--accent-color)';
 
-                    if (d.type === 'vacation') {
-                        iconContent = '🏖️';
-                        bgColor = '#ff9800';
-                    } else if (d.type === 'business') {
-                        iconContent = '💼';
-                        bgColor = '#4caf50';
-                    } else if (d.type === 'nature') {
-                        iconContent = '🏔️';
-                        bgColor = '#2e7d32';
+                    if (d.tags && d.tags.length > 0) {
+                        const firstTag = tags.find(t => t.id === d.tags[0]);
+                        if (firstTag) {
+                            iconContent = firstTag.icon;
+                            bgColor = firstTag.color;
+                        }
                     }
+
+                    const isFocused = focusedLocationId === d.id;
 
                     el.innerHTML = `
             <div style="
@@ -193,7 +220,8 @@ export default function Earth({ markers, arcs = [], onMarkerClick }) {
               background-color: ${bgColor}; 
               border-radius: 50%; 
               border: 2px solid white;
-              box-shadow: 0 0 15px ${bgColor};
+              box-shadow: 0 0 ${isFocused ? '30px' : '15px'} ${bgColor}${isFocused ? ', 0 0 10px white' : ''};
+              transform: ${isFocused ? 'scale(1.4)' : 'scale(1)'};
               cursor: pointer;
               display: flex;
               align-items: center;
@@ -204,14 +232,16 @@ export default function Earth({ markers, arcs = [], onMarkerClick }) {
           `;
 
                     el.onmouseenter = () => {
+                        if (isFocused) return;
                         el.firstElementChild.style.transform = 'scale(1.4)';
                         el.firstElementChild.style.boxShadow = `0 0 30px ${bgColor}, 0 0 10px white`;
                         if (globeRef.current) globeRef.current.controls().autoRotate = false;
                     };
                     el.onmouseleave = () => {
+                        if (isFocused) return;
                         el.firstElementChild.style.transform = 'scale(1)';
                         el.firstElementChild.style.boxShadow = `0 0 15px ${bgColor}`;
-                        if (globeRef.current) globeRef.current.controls().autoRotate = true;
+                        if (globeRef.current) globeRef.current.controls().autoRotate = autoRotate;
                     };
                     el.onclick = () => {
                         // Re-center camera on the clicked point
