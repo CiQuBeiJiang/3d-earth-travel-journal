@@ -85,7 +85,7 @@ By default, if you deploy this project to a static host like GitHub Pages, the a
 ## 🤝 Contributing
 
 Contributions, issues, and feature requests are welcome! 
-Feel free to check [issues page](https://github.com/yourusername/3d-earth-travel-log/issues).
+Feel free to check [issues page](https://github.com/CiQuBeiJiang/3d-earth-travel-journal/issues).
 
 ## 📝 License
 
