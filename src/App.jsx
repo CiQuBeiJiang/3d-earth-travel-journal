@@ -11,16 +11,11 @@ import { travelData } from './data/travelData';
 import './App.css';
 
 function MainApp() {
-  const [locations, setLocations] = useState(travelData);
+  const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isImmersive, setIsImmersive] = useState(false);
-
-  // Admin Mode (Read-Only Public View Control)
-  const [isAdmin, setIsAdmin] = useState(() => {
-    return localStorage.getItem('app-admin') === 'true';
-  });
 
   // Journey playback state
   const [routeArcs, setRouteArcs] = useState([]);
@@ -30,9 +25,14 @@ function MainApp() {
   const { theme } = useTheme();
   const { t } = useLanguage();
 
+  // Load persistent data from Electron filesystem
   useEffect(() => {
-    localStorage.setItem('app-admin', isAdmin);
-  }, [isAdmin]);
+    if (window.electronAPI) {
+      window.electronAPI.getLocations().then(data => setLocations(data));
+    } else {
+      setLocations(travelData); // Fallback for normal browser
+    }
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -45,13 +45,25 @@ function MainApp() {
   }, []);
 
   const handleAddLocation = (newLoc) => {
-    setLocations(prev => [...prev, newLoc]);
+    const newLocations = [...locations, newLoc];
+    setLocations(newLocations);
     setSelectedLocation(newLoc); // Auto open details for the new location
+
+    // Save to persistent local storage
+    if (window.electronAPI) {
+      window.electronAPI.saveLocations(newLocations);
+    }
   };
 
   const handleDeleteLocation = (id) => {
-    setLocations(prev => prev.filter(loc => loc.id !== id));
+    const newLocations = locations.filter(loc => loc.id !== id);
+    setLocations(newLocations);
     setSelectedLocation(null);
+
+    // Save to persistent local storage
+    if (window.electronAPI) {
+      window.electronAPI.saveLocations(newLocations);
+    }
   };
 
   const handleMarkerClick = (location) => {
@@ -191,27 +203,24 @@ function MainApp() {
               <span>{t('app.settings')}</span>
             </button>
 
-            {/* Conditionally Show Add Memory Button */}
-            {isAdmin && (
-              <button
-                onClick={() => setIsFormOpen(true)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '8px 16px',
-                  background: 'var(--accent-color)',
-                  border: 'none',
-                  borderRadius: '20px',
-                  color: 'white',
-                  boxShadow: '0 4px 12px rgba(100, 108, 255, 0.3)',
-                  cursor: 'pointer'
-                }}
-              >
-                <Plus size={16} />
-                <span>{t('app.addMemory')}</span>
-              </button>
-            )}
+            <button
+              onClick={() => setIsFormOpen(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                background: 'var(--accent-color)',
+                border: 'none',
+                borderRadius: '20px',
+                color: 'white',
+                boxShadow: '0 4px 12px rgba(100, 108, 255, 0.3)',
+                cursor: 'pointer'
+              }}
+            >
+              <Plus size={16} />
+              <span>{t('app.addMemory')}</span>
+            </button>
 
             <button
               onClick={isPlaying ? () => setIsPlaying(false) : playJourney}
@@ -241,11 +250,11 @@ function MainApp() {
       <LocationDetails
         location={!isImmersive ? selectedLocation : null}
         onClose={handleClosePanel}
-        onDelete={isAdmin ? handleDeleteLocation : null}
+        onDelete={handleDeleteLocation}
       />
 
       {/* Add Location Form Overlay */}
-      {isFormOpen && isAdmin && <LocationForm onClose={() => setIsFormOpen(false)} onAddLocation={handleAddLocation} />}
+      {isFormOpen && <LocationForm onClose={() => setIsFormOpen(false)} onAddLocation={handleAddLocation} />}
 
       {/* Settings Panel */}
       {isSettingsOpen && (
@@ -253,8 +262,6 @@ function MainApp() {
           onClose={() => setIsSettingsOpen(false)}
           isImmersive={isImmersive}
           setIsImmersive={setIsImmersive}
-          isAdmin={isAdmin}
-          setIsAdmin={setIsAdmin}
         />
       )}
     </div>
